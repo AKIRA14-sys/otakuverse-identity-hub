@@ -15,7 +15,7 @@ interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
   hint?: ReactNode;
-  prefix?: ReactNode;
+  leading?: ReactNode;
   trailing?: ReactNode;
 }
 
@@ -23,7 +23,7 @@ export function TextField({
   label,
   error,
   hint,
-  prefix,
+  leading,
   trailing,
   className,
   ...props
@@ -37,7 +37,7 @@ export function TextField({
           error && "ring-ember/70",
         )}
       >
-        {prefix}
+        {leading}
         <input
           className="min-w-0 flex-1 bg-transparent text-sm text-snow outline-none placeholder:text-mist/60"
           {...props}
