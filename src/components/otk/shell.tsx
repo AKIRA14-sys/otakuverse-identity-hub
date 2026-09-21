@@ -161,14 +161,14 @@ export function BottomNav() {
             <span className="size-4 shrink-0 rounded-full border-2 border-current" />
             <span className="font-display text-[10px] font-semibold">World</span>
           </Link>
-          <button
-            type="button"
-            disabled
-            className="flex cursor-not-allowed flex-col items-center gap-1 rounded-2xl px-5 py-2 text-mist/40"
+          <Link
+            to="/communities"
+            className="flex flex-col items-center gap-1 rounded-2xl px-5 py-2 text-mist"
+            activeProps={{ className: "bg-neon/15 text-neon ring-1 ring-neon/40" }}
           >
-            <span className="size-4 shrink-0 rounded-full border-2 border-current" />
-            <span className="font-display text-[10px] font-semibold">Library</span>
-          </button>
+            <span className="size-4 shrink-0 rounded-md border-2 border-current" />
+            <span className="font-display text-[10px] font-semibold">Hub</span>
+          </Link>
           <Link
             to="/profile"
             className="flex flex-col items-center gap-1 rounded-2xl px-5 py-2 text-mist"
