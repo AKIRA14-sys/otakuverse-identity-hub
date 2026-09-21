@@ -78,3 +78,45 @@ export interface Achievement {
   description: string | null;
   xp_reward: number;
 }
+
+/** Space 2 — geography reference (matches migrations). */
+export interface Continent {
+  code: string;
+  name: string;
+  member_count_cached?: number;
+}
+
+export interface Country {
+  code: string;
+  name: string;
+  dial: string;
+  flag: string | null;
+  continent_code: string | null;
+  lat: number | null;
+  lng: number | null;
+  member_count_cached?: number;
+}
+
+export interface StateProvince {
+  id: string;
+  country_code: string;
+  name: string;
+  code: string | null;
+  lat: number | null;
+  lng: number | null;
+}
+
+export interface City {
+  id: string;
+  country_code: string;
+  state_id: string | null;
+  name: string;
+  lat: number | null;
+  lng: number | null;
+}
+
+export interface LocalArea {
+  id: string;
+  city_id: string;
+  name: string;
+}
