@@ -140,11 +140,6 @@ export function Spinner({ label }: { label?: string }) {
 }
 
 export function BottomNav() {
-  // Discover and Library arrive in later spaces; they stay visibly inert here.
-  const soon = [
-    { label: "Discover", shape: "rounded-md" },
-    { label: "Library", shape: "rounded-full" },
-  ];
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10">
       <div className="mx-auto max-w-[26.25rem] px-5 pb-5">
@@ -158,17 +153,22 @@ export function BottomNav() {
             <span className="size-4 shrink-0 rounded-md border-2 border-current" />
             <span className="font-display text-[10px] font-semibold">Home</span>
           </Link>
-          {soon.map((item) => (
-            <button
-              key={item.label}
-              type="button"
-              disabled
-              className="flex cursor-not-allowed flex-col items-center gap-1 rounded-2xl px-5 py-2 text-mist/40"
-            >
-              <span className={cn("size-4 shrink-0 border-2 border-current", item.shape)} />
-              <span className="font-display text-[10px] font-semibold">{item.label}</span>
-            </button>
-          ))}
+          <Link
+            to="/world"
+            className="flex flex-col items-center gap-1 rounded-2xl px-5 py-2 text-mist"
+            activeProps={{ className: "bg-neon/15 text-neon ring-1 ring-neon/40" }}
+          >
+            <span className="size-4 shrink-0 rounded-full border-2 border-current" />
+            <span className="font-display text-[10px] font-semibold">World</span>
+          </Link>
+          <button
+            type="button"
+            disabled
+            className="flex cursor-not-allowed flex-col items-center gap-1 rounded-2xl px-5 py-2 text-mist/40"
+          >
+            <span className="size-4 shrink-0 rounded-full border-2 border-current" />
+            <span className="font-display text-[10px] font-semibold">Library</span>
+          </button>
           <Link
             to="/profile"
             className="flex flex-col items-center gap-1 rounded-2xl px-5 py-2 text-mist"
