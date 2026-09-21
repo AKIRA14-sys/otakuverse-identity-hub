@@ -12,6 +12,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as WorldRouteImport } from './routes/world'
 import { Route as CommunitiesRouteImport } from './routes/communities'
+import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
 import { Route as CommunitiesCreateRouteImport } from './routes/communities.create'
 import { Route as CommunitiesSlugRouteImport } from './routes/communities.$slug'
 import { Route as SocietiesRouteImport } from './routes/societies'
@@ -46,15 +47,20 @@ const CommunitiesRoute = CommunitiesRouteImport.update({
   path: '/communities',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommunitiesIndexRoute = CommunitiesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CommunitiesRoute,
+} as any)
 const CommunitiesCreateRoute = CommunitiesCreateRouteImport.update({
-  id: '/communities/create',
-  path: '/communities/create',
-  getParentRoute: () => rootRouteImport,
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => CommunitiesRoute,
 } as any)
 const CommunitiesSlugRoute = CommunitiesSlugRouteImport.update({
-  id: '/communities/$slug',
-  path: '/communities/$slug',
-  getParentRoute: () => rootRouteImport,
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => CommunitiesRoute,
 } as any)
 const SocietiesRoute = SocietiesRouteImport.update({
   id: '/societies',
@@ -116,7 +122,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/profile': typeof ProfileRoute
   '/world': typeof WorldRoute
-  '/communities': typeof CommunitiesRoute
+  '/communities': typeof CommunitiesRouteWithChildren
+  '/communities/': typeof CommunitiesIndexRoute
   '/communities/create': typeof CommunitiesCreateRoute
   '/communities/$slug': typeof CommunitiesSlugRoute
   '/societies': typeof SocietiesRoute
@@ -135,7 +142,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/profile': typeof ProfileRoute
   '/world': typeof WorldRoute
-  '/communities': typeof CommunitiesRoute
+  '/communities': typeof CommunitiesIndexRoute
   '/communities/create': typeof CommunitiesCreateRoute
   '/communities/$slug': typeof CommunitiesSlugRoute
   '/societies': typeof SocietiesRoute
@@ -155,7 +162,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/profile': typeof ProfileRoute
   '/world': typeof WorldRoute
-  '/communities': typeof CommunitiesRoute
+  '/communities': typeof CommunitiesRouteWithChildren
+  '/communities/': typeof CommunitiesIndexRoute
   '/communities/create': typeof CommunitiesCreateRoute
   '/communities/$slug': typeof CommunitiesSlugRoute
   '/societies': typeof SocietiesRoute
@@ -177,6 +185,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/world'
     | '/communities'
+    | '/communities/'
     | '/communities/create'
     | '/communities/$slug'
     | '/societies'
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/world'
     | '/communities'
+    | '/communities/'
     | '/communities/create'
     | '/communities/$slug'
     | '/societies'
@@ -234,9 +244,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProfileRoute: typeof ProfileRoute
   WorldRoute: typeof WorldRoute
-  CommunitiesRoute: typeof CommunitiesRoute
-  CommunitiesCreateRoute: typeof CommunitiesCreateRoute
-  CommunitiesSlugRoute: typeof CommunitiesSlugRoute
+  CommunitiesRoute: typeof CommunitiesRouteWithChildren
   SocietiesRoute: typeof SocietiesRoute
   SocietiesSlugRoute: typeof SocietiesSlugRoute
   ClansRoute: typeof ClansRoute
@@ -256,8 +264,9 @@ declare module '@tanstack/react-router' {
     '/profile': { id: '/profile'; path: '/profile'; fullPath: '/profile'; preLoaderRoute: typeof ProfileRouteImport; parentRoute: typeof rootRouteImport }
     '/world': { id: '/world'; path: '/world'; fullPath: '/world'; preLoaderRoute: typeof WorldRouteImport; parentRoute: typeof rootRouteImport }
     '/communities': { id: '/communities'; path: '/communities'; fullPath: '/communities'; preLoaderRoute: typeof CommunitiesRouteImport; parentRoute: typeof rootRouteImport }
-    '/communities/create': { id: '/communities/create'; path: '/communities/create'; fullPath: '/communities/create'; preLoaderRoute: typeof CommunitiesCreateRouteImport; parentRoute: typeof rootRouteImport }
-    '/communities/$slug': { id: '/communities/$slug'; path: '/communities/$slug'; fullPath: '/communities/$slug'; preLoaderRoute: typeof CommunitiesSlugRouteImport; parentRoute: typeof rootRouteImport }
+    '/communities/': { id: '/communities/'; path: '/'; fullPath: '/communities/'; preLoaderRoute: typeof CommunitiesIndexRouteImport; parentRoute: typeof CommunitiesRoute }
+    '/communities/create': { id: '/communities/create'; path: '/create'; fullPath: '/communities/create'; preLoaderRoute: typeof CommunitiesCreateRouteImport; parentRoute: typeof CommunitiesRoute }
+    '/communities/$slug': { id: '/communities/$slug'; path: '/$slug'; fullPath: '/communities/$slug'; preLoaderRoute: typeof CommunitiesSlugRouteImport; parentRoute: typeof CommunitiesRoute }
     '/societies': { id: '/societies'; path: '/societies'; fullPath: '/societies'; preLoaderRoute: typeof SocietiesRouteImport; parentRoute: typeof rootRouteImport }
     '/societies/$slug': { id: '/societies/$slug'; path: '/societies/$slug'; fullPath: '/societies/$slug'; preLoaderRoute: typeof SocietiesSlugRouteImport; parentRoute: typeof rootRouteImport }
     '/clans': { id: '/clans'; path: '/clans'; fullPath: '/clans'; preLoaderRoute: typeof ClansRouteImport; parentRoute: typeof rootRouteImport }
@@ -272,13 +281,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CommunitiesRouteChildren {
+  CommunitiesIndexRoute: typeof CommunitiesIndexRoute
+  CommunitiesCreateRoute: typeof CommunitiesCreateRoute
+  CommunitiesSlugRoute: typeof CommunitiesSlugRoute
+}
+
+const CommunitiesRouteChildren: CommunitiesRouteChildren = {
+  CommunitiesIndexRoute: CommunitiesIndexRoute,
+  CommunitiesCreateRoute: CommunitiesCreateRoute,
+  CommunitiesSlugRoute: CommunitiesSlugRoute,
+}
+
+const CommunitiesRouteWithChildren =
+  CommunitiesRoute._addFileChildren(CommunitiesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProfileRoute: ProfileRoute,
   WorldRoute: WorldRoute,
-  CommunitiesRoute: CommunitiesRoute,
-  CommunitiesCreateRoute: CommunitiesCreateRoute,
-  CommunitiesSlugRoute: CommunitiesSlugRoute,
+  CommunitiesRoute: CommunitiesRouteWithChildren,
   SocietiesRoute: SocietiesRoute,
   SocietiesSlugRoute: SocietiesSlugRoute,
   ClansRoute: ClansRoute,
