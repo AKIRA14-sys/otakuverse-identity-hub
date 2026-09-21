@@ -30,15 +30,14 @@ export async function fetchMyProfile(): Promise<Profile | null> {
   return (row as Profile) ?? null;
 }
 
-/** Public profile of any user — private fields are never exposed. */
+/** Public profile of any user — private fields never exposed (RPC). */
 export async function fetchPublicProfile(username: string): Promise<PublicProfile | null> {
-  const { data, error } = await requireSupabase()
-    .from("public_profiles")
-    .select("*")
-    .eq("username", username.toLowerCase())
-    .maybeSingle();
+  const { data, error } = await requireSupabase().rpc("get_public_profile", {
+    p_username: username,
+  });
   if (error) throw new Error(error.message);
-  return (data as PublicProfile) ?? null;
+  const row = Array.isArray(data) ? data[0] : data;
+  return (row as PublicProfile) ?? null;
 }
 
 export async function updateMyProfile(userId: string, patch: EditableProfileFields) {
