@@ -120,3 +120,17 @@ export interface LocalArea {
   city_id: string;
   name: string;
 }
+
+
+/** Space 3 — re-exported community domain types live primarily in src/lib/communities.ts */
+export type {
+  Community,
+  CommunityType,
+  CommunityPrivacy,
+  MembershipRole,
+  MembershipStatus,
+  VerificationStatus,
+  Society,
+  Clan,
+  CommunityPost,
+} from "@/lib/communities";
