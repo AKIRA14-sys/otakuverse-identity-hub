@@ -134,3 +134,8 @@ export type {
   Clan,
   CommunityPost,
 } from "@/lib/communities";
+
+/** Space 4 — social domain types (see also src/lib/social.ts) */
+export type PostVisibility = "public" | "followers" | "friends" | "community";
+export type ReactionKind = "like" | "love" | "laugh" | "amazing" | "sad" | "angry";
+export type FriendStatus = "pending" | "accepted" | "declined" | "cancelled" | "blocked";
