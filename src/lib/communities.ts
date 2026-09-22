@@ -172,9 +172,9 @@ export async function leaveCommunity(communityId: string) {
 export async function createCommunity(input: {
   name: string;
   type: CommunityType;
-  description?: string;
-  privacy?: CommunityPrivacy;
-  country_code?: string;
+  description?: string | undefined;
+  privacy?: CommunityPrivacy | undefined;
+  country_code?: string | undefined;
 }) {
   const { data, error } = await requireSupabase().rpc("create_community", {
     p_name: input.name,

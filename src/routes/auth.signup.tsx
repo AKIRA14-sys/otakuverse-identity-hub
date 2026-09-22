@@ -181,7 +181,6 @@ function SignupPage() {
                     setCountryCode(code);
                     setPhone("");
                   }}
-                  error={undefined}
                 />
                 <TextField
                   label={dial ? `Phone (${dial})` : "Phone number"}
