@@ -59,7 +59,11 @@ function WorldPage() {
   const [panelLoading, setPanelLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const selected = crumbs[crumbs.length - 1];
+  const selected: Crumb = crumbs[crumbs.length - 1] ?? {
+    kind: "earth",
+    id: "earth",
+    label: "Earth",
+  };
   const selectedContinent =
     selected.kind === "continent"
       ? selected.id

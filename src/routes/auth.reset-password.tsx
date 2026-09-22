@@ -31,10 +31,9 @@ function ResetPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (done) {
-      const t = setTimeout(() => navigate({ to: "/profile", replace: true }), 1600);
-      return () => clearTimeout(t);
-    }
+    if (!done) return undefined;
+    const t = setTimeout(() => navigate({ to: "/profile", replace: true }), 1600);
+    return () => clearTimeout(t);
   }, [done, navigate]);
 
   async function onSubmit(e: React.FormEvent) {
