@@ -1,375 +1,268 @@
 import { requireSupabase } from "./supabase";
 
-/* ------------------------------------------------------------------ */
-/* Types — kept loose where the backend may return extra columns.      */
-/* ------------------------------------------------------------------ */
+export type PostVisibility = "public" | "followers" | "friends" | "community";
+export type ReactionKind = "like" | "love" | "laugh" | "amazing" | "sad" | "angry";
 
-export type PostVisibility = "public" | "followers" | "friends" | "community" | "private";
-
-export interface SocialPost {
+export interface FeedPost {
   id: string;
   author_id: string;
-  username?: string | null;
-  display_name?: string | null;
-  avatar_url?: string | null;
+  author_username: string;
+  author_display_name: string | null;
+  author_avatar_url: string | null;
   body: string;
-  media_urls?: string[] | null;
-  image_urls?: string[] | null;
-  visibility?: PostVisibility | string | null;
-  community_id?: string | null;
-  community_name?: string | null;
-  reaction_count?: number | null;
-  comment_count?: number | null;
-  my_reaction?: string | null;
+  media_urls: string[];
+  visibility: PostVisibility;
+  reaction_count: number;
+  comment_count: number;
+  repost_count: number;
   created_at: string;
+  my_reaction: ReactionKind | null;
 }
 
 export interface PostComment {
   id: string;
-  post_id: string;
   author_id: string;
-  username?: string | null;
-  display_name?: string | null;
-  avatar_url?: string | null;
+  author_username: string;
+  author_display_name: string | null;
+  author_avatar_url: string | null;
+  parent_id: string | null;
   body: string;
-  parent_id?: string | null;
+  reaction_count: number;
   created_at: string;
 }
 
 export interface SocialUser {
-  id?: string;
-  user_id?: string;
+  id: string;
   username: string;
-  display_name?: string | null;
-  avatar_url?: string | null;
-  follower_count?: number | null;
-  is_following?: boolean | null;
-  friend_status?: string | null;
-  level?: number | null;
+  display_name: string | null;
+  avatar_url: string | null;
+  bio?: string | null;
+  follower_count?: number;
 }
 
-export interface Conversation {
-  id?: string;
-  conversation_id?: string;
-  other_user_id?: string | null;
-  username?: string | null;
-  display_name?: string | null;
-  avatar_url?: string | null;
-  last_message?: string | null;
-  last_message_at?: string | null;
-  unread_count?: number | null;
+export interface ConversationRow {
+  conversation_id: string;
+  other_user_id: string;
+  other_username: string;
+  other_display_name: string | null;
+  other_avatar_url: string | null;
+  last_body: string | null;
+  last_at: string;
+  unread: boolean;
 }
 
 export interface DmMessage {
   id: string;
-  conversation_id?: string;
   sender_id: string;
   body: string;
+  reply_to_id: string | null;
+  is_deleted: boolean;
   created_at: string;
-  read_at?: string | null;
 }
 
-export interface AppNotification {
+export interface NotificationRow {
   id: string;
+  recipient_id: string;
+  actor_id: string | null;
   type: string;
-  actor_id?: string | null;
-  actor_username?: string | null;
-  actor_display_name?: string | null;
-  actor_avatar_url?: string | null;
-  entity_id?: string | null;
-  body?: string | null;
-  message?: string | null;
-  is_read?: boolean | null;
-  read_at?: string | null;
+  entity_type: string | null;
+  entity_id: string | null;
+  body: string | null;
+  is_read: boolean;
   created_at: string;
 }
 
-/* ------------------------------------------------------------------ */
-/* RPC helper — tolerant of small argument-name differences.           */
-/* ------------------------------------------------------------------ */
+export const REACTION_LABELS: { kind: ReactionKind; label: string }[] = [
+  { kind: "like", label: "Like" },
+  { kind: "love", label: "Love" },
+  { kind: "laugh", label: "Laugh" },
+  { kind: "amazing", label: "Amazing" },
+  { kind: "sad", label: "Sad" },
+  { kind: "angry", label: "Angry" },
+];
 
-type Args = Record<string, unknown>;
-
-function isSignatureMismatch(message: string) {
-  const m = message.toLowerCase();
-  return (
-    m.includes("could not find the function") ||
-    m.includes("does not exist") ||
-    m.includes("without parameters") ||
-    m.includes("no function matches")
-  );
+export async function fetchFeed(limit = 20, before?: string): Promise<FeedPost[]> {
+  const { data, error } = await requireSupabase().rpc("get_social_feed", {
+    result_limit: limit,
+    p_before: before ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return (data as FeedPost[]) ?? [];
 }
 
-/** Calls an RPC, trying each argument shape until one is accepted. */
-async function rpc<T>(name: string, variants: Args[]): Promise<T> {
-  const client = requireSupabase();
-  let lastError = "";
-  for (const args of variants) {
-    const { data, error } = await client.rpc(name, args);
-    if (!error) return data as T;
-    lastError = error.message;
-    if (!isSignatureMismatch(error.message)) throw new Error(error.message);
-  }
-  throw new Error(lastError || `${name} is not available.`);
-}
-
-function rows<T>(data: unknown): T[] {
-  if (Array.isArray(data)) return data as T[];
-  if (data && typeof data === "object") {
-    const maybe = (data as Record<string, unknown>)["items"];
-    if (Array.isArray(maybe)) return maybe as T[];
-  }
-  return [];
-}
-
-/* ------------------------------------------------------------------ */
-/* Feed & posts                                                        */
-/* ------------------------------------------------------------------ */
-
-export async function getSocialFeed(limit = 20, offset = 0): Promise<SocialPost[]> {
-  const data = await rpc<unknown>("get_social_feed", [
-    { result_limit: limit, result_offset: offset },
-    { result_limit: limit },
-    { p_limit: limit, p_offset: offset },
-    {},
-  ]);
-  return rows<SocialPost>(data);
-}
-
-export async function createSocialPost(input: {
+export async function createPost(input: {
   body: string;
-  visibility?: string;
-  communityId?: string | null;
-  mediaUrls?: string[];
+  visibility?: PostVisibility;
+  media_urls?: string[];
 }) {
-  const media = input.mediaUrls ?? [];
-  const vis = input.visibility ?? "public";
-  const data = await rpc<unknown>("create_social_post", [
-    {
-      p_body: input.body,
-      p_visibility: vis,
-      p_community_id: input.communityId ?? null,
-      p_media_urls: media,
-    },
-    {
-      p_body: input.body,
-      p_visibility: vis,
-      p_community_id: input.communityId ?? null,
-      p_image_urls: media,
-    },
-    { p_body: input.body, p_visibility: vis, p_community_id: input.communityId ?? null },
-    { p_body: input.body },
-  ]);
-  return data as { ok?: boolean; id?: string; error?: string } | null;
+  const { data, error } = await requireSupabase().rpc("create_social_post", {
+    p_body: input.body,
+    p_visibility: input.visibility ?? "public",
+    p_media_urls: input.media_urls ?? [],
+    p_community_id: null,
+  });
+  if (error) throw new Error(error.message);
+  return data as { ok?: boolean; id?: string; error?: string };
 }
 
-export async function reactToPost(postId: string, reaction = "like") {
-  return rpc<unknown>("react_to_post", [
-    { p_post_id: postId, p_reaction: reaction },
-    { p_post_id: postId, p_reaction_type: reaction },
-    { p_post_id: postId },
-  ]);
+export async function reactToPost(postId: string, kind: ReactionKind = "like") {
+  const { data, error } = await requireSupabase().rpc("react_to_post", {
+    p_post_id: postId,
+    p_kind: kind,
+  });
+  if (error) throw new Error(error.message);
+  return data as { ok?: boolean; error?: string };
 }
 
-export async function removePostReaction(postId: string) {
-  return rpc<unknown>("remove_post_reaction", [{ p_post_id: postId }]);
+export async function removeReaction(postId: string) {
+  const { data, error } = await requireSupabase().rpc("remove_post_reaction", {
+    p_post_id: postId,
+  });
+  if (error) throw new Error(error.message);
+  return data as { ok?: boolean };
 }
 
-export async function listPostComments(postId: string, limit = 50): Promise<PostComment[]> {
-  const data = await rpc<unknown>("list_post_comments", [
-    { p_post_id: postId, result_limit: limit },
-    { p_post_id: postId, p_limit: limit },
-    { p_post_id: postId },
-  ]);
-  return rows<PostComment>(data);
+export async function commentOnPost(postId: string, body: string, parentId?: string) {
+  const { data, error } = await requireSupabase().rpc("comment_on_post", {
+    p_post_id: postId,
+    p_body: body,
+    p_parent_id: parentId ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return data as { ok?: boolean; id?: string; error?: string };
 }
 
-export async function commentOnPost(postId: string, body: string, parentId?: string | null) {
-  return rpc<unknown>("comment_on_post", [
-    { p_post_id: postId, p_body: body, p_parent_id: parentId ?? null },
-    { p_post_id: postId, p_body: body, p_parent_comment_id: parentId ?? null },
-    { p_post_id: postId, p_body: body },
-  ]);
+export async function listComments(postId: string): Promise<PostComment[]> {
+  const { data, error } = await requireSupabase().rpc("list_post_comments", {
+    p_post_id: postId,
+    result_limit: 50,
+  });
+  if (error) throw new Error(error.message);
+  return (data as PostComment[]) ?? [];
 }
-
-/* ------------------------------------------------------------------ */
-/* Connections                                                         */
-/* ------------------------------------------------------------------ */
 
 export async function followUser(userId: string) {
-  return rpc<unknown>("follow_user", [{ p_user_id: userId }, { p_target_id: userId }]);
+  const { data, error } = await requireSupabase().rpc("follow_user", { p_user_id: userId });
+  if (error) throw new Error(error.message);
+  return data as { ok?: boolean; error?: string };
 }
 
 export async function unfollowUser(userId: string) {
-  return rpc<unknown>("unfollow_user", [{ p_user_id: userId }, { p_target_id: userId }]);
+  const { data, error } = await requireSupabase().rpc("unfollow_user", { p_user_id: userId });
+  if (error) throw new Error(error.message);
+  return data as { ok?: boolean };
 }
 
 export async function sendFriendRequest(userId: string) {
-  return rpc<unknown>("send_friend_request", [{ p_user_id: userId }, { p_target_id: userId }]);
+  const { data, error } = await requireSupabase().rpc("send_friend_request", {
+    p_user_id: userId,
+  });
+  if (error) throw new Error(error.message);
+  return data as { ok?: boolean; error?: string };
 }
 
-export async function respondFriendRequest(requestId: string, accept: boolean) {
-  return rpc<unknown>("respond_friend_request", [
-    { p_request_id: requestId, p_accept: accept },
-    { p_request_id: requestId, p_response: accept ? "accepted" : "declined" },
-    { p_user_id: requestId, p_accept: accept },
-  ]);
+export async function respondFriendRequest(requesterId: string, accept: boolean) {
+  const { data, error } = await requireSupabase().rpc("respond_friend_request", {
+    p_requester_id: requesterId,
+    p_accept: accept,
+  });
+  if (error) throw new Error(error.message);
+  return data as { ok?: boolean; error?: string };
 }
 
-export async function blockUser(userId: string) {
-  return rpc<unknown>("block_user", [{ p_user_id: userId }, { p_target_id: userId }]);
+export async function getFollowers(userId: string) {
+  const { data, error } = await requireSupabase().rpc("get_followers", {
+    p_user_id: userId,
+    result_limit: 40,
+  });
+  if (error) throw new Error(error.message);
+  return data ?? [];
 }
 
-export async function getFollowers(userId?: string | null, limit = 50): Promise<SocialUser[]> {
-  const data = await rpc<unknown>("get_followers", [
-    { p_user_id: userId ?? null, result_limit: limit },
-    { p_user_id: userId ?? null },
-    { result_limit: limit },
-    {},
-  ]);
-  return rows<SocialUser>(data);
+export async function getFollowing(userId: string) {
+  const { data, error } = await requireSupabase().rpc("get_following", {
+    p_user_id: userId,
+    result_limit: 40,
+  });
+  if (error) throw new Error(error.message);
+  return data ?? [];
 }
 
-export async function getFollowing(userId?: string | null, limit = 50): Promise<SocialUser[]> {
-  const data = await rpc<unknown>("get_following", [
-    { p_user_id: userId ?? null, result_limit: limit },
-    { p_user_id: userId ?? null },
-    { result_limit: limit },
-    {},
-  ]);
-  return rows<SocialUser>(data);
+export async function searchUsers(q: string): Promise<SocialUser[]> {
+  if (!q.trim()) return [];
+  const { data, error } = await requireSupabase().rpc("search_users", {
+    q,
+    result_limit: 20,
+  });
+  if (error) throw new Error(error.message);
+  return (data as SocialUser[]) ?? [];
 }
 
-export async function searchUsers(q: string, limit = 25): Promise<SocialUser[]> {
-  const data = await rpc<unknown>("search_users", [
-    { q, result_limit: limit },
-    { p_query: q, result_limit: limit },
-    { q },
-  ]);
-  return rows<SocialUser>(data);
+export async function getOrCreateDm(otherUserId: string) {
+  const { data, error } = await requireSupabase().rpc("get_or_create_dm", {
+    p_other_user: otherUserId,
+  });
+  if (error) throw new Error(error.message);
+  return data as { ok?: boolean; conversation_id?: string; error?: string };
 }
 
-/* ------------------------------------------------------------------ */
-/* Direct messages                                                     */
-/* ------------------------------------------------------------------ */
-
-export async function listMyConversations(limit = 50): Promise<Conversation[]> {
-  const data = await rpc<unknown>("list_my_conversations", [{ result_limit: limit }, {}]);
-  return rows<Conversation>(data);
+export async function listConversations(): Promise<ConversationRow[]> {
+  const { data, error } = await requireSupabase().rpc("list_my_conversations", {
+    result_limit: 30,
+  });
+  if (error) throw new Error(error.message);
+  return (data as ConversationRow[]) ?? [];
 }
 
-export async function getOrCreateDm(userId: string): Promise<string | null> {
-  const data = await rpc<unknown>("get_or_create_dm", [
-    { p_user_id: userId },
-    { p_other_user_id: userId },
-    { p_target_id: userId },
-  ]);
-  if (typeof data === "string") return data;
-  const row = Array.isArray(data) ? data[0] : data;
-  if (row && typeof row === "object") {
-    const r = row as Record<string, unknown>;
-    const id = r["conversation_id"] ?? r["id"];
-    if (typeof id === "string") return id;
-  }
-  return null;
-}
-
-export async function listDmMessages(conversationId: string, limit = 60): Promise<DmMessage[]> {
-  const data = await rpc<unknown>("list_dm_messages", [
-    { p_conversation_id: conversationId, result_limit: limit },
-    { p_conversation_id: conversationId, p_limit: limit },
-    { p_conversation_id: conversationId },
-  ]);
-  return rows<DmMessage>(data);
+export async function listDmMessages(conversationId: string): Promise<DmMessage[]> {
+  const { data, error } = await requireSupabase().rpc("list_dm_messages", {
+    p_conversation_id: conversationId,
+    result_limit: 80,
+  });
+  if (error) throw new Error(error.message);
+  return (data as DmMessage[]) ?? [];
 }
 
 export async function sendDm(conversationId: string, body: string) {
-  return rpc<unknown>("send_dm", [
-    { p_conversation_id: conversationId, p_body: body },
-    { p_conversation_id: conversationId, p_message: body },
-  ]);
+  const { data, error } = await requireSupabase().rpc("send_dm", {
+    p_conversation_id: conversationId,
+    p_body: body,
+    p_reply_to: null,
+  });
+  if (error) throw new Error(error.message);
+  return data as { ok?: boolean; id?: string; error?: string };
 }
 
 export async function markDmRead(conversationId: string) {
-  return rpc<unknown>("mark_dm_read", [{ p_conversation_id: conversationId }]);
+  await requireSupabase().rpc("mark_dm_read", { p_conversation_id: conversationId });
 }
 
-/* ------------------------------------------------------------------ */
-/* Notifications                                                       */
-/* ------------------------------------------------------------------ */
-
-export async function getMyNotifications(limit = 50): Promise<AppNotification[]> {
-  const data = await rpc<unknown>("get_my_notifications", [{ result_limit: limit }, {}]);
-  return rows<AppNotification>(data);
+export async function getNotifications(): Promise<NotificationRow[]> {
+  const { data, error } = await requireSupabase().rpc("get_my_notifications", {
+    result_limit: 40,
+  });
+  if (error) throw new Error(error.message);
+  return (data as NotificationRow[]) ?? [];
 }
 
 export async function markNotificationsRead(ids?: string[]) {
-  return rpc<unknown>("mark_notifications_read", [
-    { p_notification_ids: ids ?? null },
-    { p_ids: ids ?? null },
-    {},
-  ]);
-}
-
-/* ------------------------------------------------------------------ */
-/* Media upload (Supabase Storage)                                     */
-/* ------------------------------------------------------------------ */
-
-export const MEDIA_BUCKET =
-  (import.meta.env['VITE_SUPABASE_MEDIA_BUCKET'] as string | undefined) ?? "post-media";
-
-export async function uploadPostMedia(file: File, userId: string): Promise<string> {
-  const client = requireSupabase();
-  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const { error } = await client.storage.from(MEDIA_BUCKET).upload(path, file, {
-    cacheControl: "3600",
-    upsert: false,
-    ...(file.type ? { contentType: file.type } : {}),
+  const { data, error } = await requireSupabase().rpc("mark_notifications_read", {
+    p_ids: ids ?? null,
   });
-  if (error) {
-    throw new Error(
-      `Upload failed (${error.message}). Make sure a storage bucket named "${MEDIA_BUCKET}" exists and allows uploads.`,
-    );
-  }
-  const { data } = client.storage.from(MEDIA_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+  if (error) throw new Error(error.message);
+  return data as { ok?: boolean };
 }
 
-/* ------------------------------------------------------------------ */
-/* Small helpers                                                       */
-/* ------------------------------------------------------------------ */
-
-export function postMedia(post: SocialPost): string[] {
-  return post.media_urls ?? post.image_urls ?? [];
+export async function blockUser(userId: string) {
+  const { data, error } = await requireSupabase().rpc("block_user", { p_user_id: userId });
+  if (error) throw new Error(error.message);
+  return data as { ok?: boolean; error?: string };
 }
 
-export function userId(u: SocialUser): string {
-  return (u.id ?? u.user_id ?? "") as string;
-}
-
-export function conversationId(c: Conversation): string {
-  return (c.id ?? c.conversation_id ?? "") as string;
-}
-
-export function timeAgo(iso: string | null | undefined): string {
-  if (!iso) return "";
-  const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return "";
-  const secs = Math.max(1, Math.round((Date.now() - then) / 1000));
-  if (secs < 60) return `${secs}s`;
-  const mins = Math.round(secs / 60);
-  if (mins < 60) return `${mins}m`;
-  const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.round(hours / 24);
-  if (days < 7) return `${days}d`;
-  return new Date(iso).toLocaleDateString();
-}
-
-export function clockTime(iso: string | null | undefined): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+export function timeAgo(iso: string): string {
+  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s / 60)}m`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h`;
+  return `${Math.floor(s / 86400)}d`;
 }
