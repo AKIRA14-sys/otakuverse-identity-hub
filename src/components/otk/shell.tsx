@@ -140,42 +140,32 @@ export function Spinner({ label }: { label?: string }) {
 }
 
 export function BottomNav() {
+  const item =
+    "flex flex-col items-center gap-1 rounded-2xl px-2.5 py-2 text-mist sm:px-3";
+  const active = "bg-neon/15 text-neon ring-1 ring-neon/40";
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10">
-      <div className="mx-auto max-w-[26.25rem] px-5 pb-5">
-        <div className="flex items-center justify-between rounded-3xl bg-panel/90 px-3 py-2.5 ring-1 ring-line shadow-[0_-8px_30px_rgba(0,0,0,0.4)] backdrop-blur">
-          <Link
-            to="/"
-            className="flex flex-col items-center gap-1 rounded-2xl px-5 py-2 text-mist"
-            activeProps={{ className: "bg-neon/15 text-neon ring-1 ring-neon/40" }}
-            activeOptions={{ exact: true }}
-          >
+      <div className="mx-auto max-w-[26.25rem] px-3 pb-5 sm:px-5">
+        <div className="flex items-center justify-between rounded-3xl bg-panel/90 px-1.5 py-2 ring-1 ring-line shadow-[0_-8px_30px_rgba(0,0,0,0.4)] backdrop-blur sm:px-2">
+          <Link to="/feed" className={item} activeProps={{ className: active }}>
             <span className="size-4 shrink-0 rounded-md border-2 border-current" />
-            <span className="font-display text-[10px] font-semibold">Home</span>
+            <span className="font-display text-[9px] font-semibold sm:text-[10px]">Home</span>
           </Link>
-          <Link
-            to="/world"
-            className="flex flex-col items-center gap-1 rounded-2xl px-5 py-2 text-mist"
-            activeProps={{ className: "bg-neon/15 text-neon ring-1 ring-neon/40" }}
-          >
+          <Link to="/explore" className={item} activeProps={{ className: active }}>
             <span className="size-4 shrink-0 rounded-full border-2 border-current" />
-            <span className="font-display text-[10px] font-semibold">World</span>
+            <span className="font-display text-[9px] font-semibold sm:text-[10px]">Explore</span>
           </Link>
-          <Link
-            to="/communities"
-            className="flex flex-col items-center gap-1 rounded-2xl px-5 py-2 text-mist"
-            activeProps={{ className: "bg-neon/15 text-neon ring-1 ring-neon/40" }}
-          >
+          <Link to="/create" className={item} activeProps={{ className: active }}>
             <span className="size-4 shrink-0 rounded-md border-2 border-current" />
-            <span className="font-display text-[10px] font-semibold">Hub</span>
+            <span className="font-display text-[9px] font-semibold sm:text-[10px]">Create</span>
           </Link>
-          <Link
-            to="/profile"
-            className="flex flex-col items-center gap-1 rounded-2xl px-5 py-2 text-mist"
-            activeProps={{ className: "bg-neon/15 text-neon ring-1 ring-neon/40" }}
-          >
+          <Link to="/messages" className={item} activeProps={{ className: active }}>
+            <span className="size-4 shrink-0 rounded-full border-2 border-current" />
+            <span className="font-display text-[9px] font-semibold sm:text-[10px]">Inbox</span>
+          </Link>
+          <Link to="/profile" className={item} activeProps={{ className: active }}>
             <span className="size-4 shrink-0 rounded-md border-2 border-current" />
-            <span className="font-display text-[10px] font-semibold">Profile</span>
+            <span className="font-display text-[9px] font-semibold sm:text-[10px]">Profile</span>
           </Link>
         </div>
       </div>
