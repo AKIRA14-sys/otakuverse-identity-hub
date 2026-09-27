@@ -26,8 +26,7 @@ export const otkButtonVariants = cva(
 );
 
 export interface OtkButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof otkButtonVariants> {}
+  extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof otkButtonVariants> {}
 
 export function OtkButton({ className, variant, size, ...props }: OtkButtonProps) {
   return <button className={cn(otkButtonVariants({ variant, size }), className)} {...props} />;

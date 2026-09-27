@@ -4,17 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import { OtkButton } from "@/components/otk/button";
 import { ConnectionGuard } from "@/components/otk/connection-guard";
 import { TextField } from "@/components/otk/field";
-import {
-  Chip,
-  Notice,
-  Panel,
-  Screen,
-  Spinner,
-  XPBar,
-} from "@/components/otk/shell";
+import { Chip, Notice, Panel, Screen, Spinner, XPBar } from "@/components/otk/shell";
 import avatarDefault from "@/assets/avatar-default.jpg";
 import coverDefault from "@/assets/profile-cover.jpg";
 import { ageFromDob } from "@/lib/age";
+import { BadgesShowcase } from "@/components/otk/badges-modal";
+import { CardExporter } from "@/components/otk/card-exporter";
 import { useAuth } from "@/lib/auth";
 import {
   fetchMyProfile,
@@ -216,17 +211,30 @@ function ProfilePage() {
               <XPBar into={progress.into} span={progress.span} level={profile.level} />
             </div>
 
-            <div className="mt-4 flex gap-6">
-              {[
-                [profile.follower_count.toLocaleString(), "Followers"],
-                [profile.following_count.toLocaleString(), "Following"],
-                [String(profile.reputation), "Rep"],
-              ].map(([value, label]) => (
-                <div key={label}>
-                  <p className="font-display text-base font-bold">{value}</p>
-                  <p className="text-[11px] text-mist">{label}</p>
-                </div>
-              ))}
+            <div className="mt-4 flex items-center justify-between">
+              <div className="flex gap-6">
+                {[
+                  [profile.follower_count.toLocaleString(), "Followers"],
+                  [profile.following_count.toLocaleString(), "Following"],
+                  [String(profile.reputation), "Rep"],
+                ].map(([value, label]) => (
+                  <div key={label}>
+                    <p className="font-display text-base font-bold">{value}</p>
+                    <p className="text-[11px] text-mist">{label}</p>
+                  </div>
+                ))}
+              </div>
+              <BadgesShowcase />
+            </div>
+
+            <div className="mt-5">
+              <CardExporter
+                username={profile.username}
+                displayName={profile.display_name}
+                level={profile.level}
+                xp={profile.xp}
+                country={profile.country_code}
+              />
             </div>
 
             {(profile.favorite_genres?.length ?? 0) > 0 ? (
@@ -279,9 +287,7 @@ function ProfilePage() {
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-mist">User ID</dt>
-              <dd className="truncate text-right font-mono text-[11px] text-mist">
-                {profile.id}
-              </dd>
+              <dd className="truncate text-right font-mono text-[11px] text-mist">{profile.id}</dd>
             </div>
           </dl>
           <p className="mt-3 text-[11px] text-mist">
@@ -335,9 +341,7 @@ function ProfilePage() {
               <TextField
                 label="Favorite characters (comma-separated)"
                 value={draft.favorite_characters}
-                onChange={(e) =>
-                  setDraft((d) => ({ ...d, favorite_characters: e.target.value }))
-                }
+                onChange={(e) => setDraft((d) => ({ ...d, favorite_characters: e.target.value }))}
                 placeholder="Spike Spiegel, …"
               />
               {saveError ? <Notice>{saveError}</Notice> : null}

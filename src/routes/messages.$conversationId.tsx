@@ -4,14 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { ConnectionGuard } from "@/components/otk/connection-guard";
 import { Notice, Panel, Screen, Spinner } from "@/components/otk/shell";
 import { useAuth } from "@/lib/auth";
-import {
-  listDmMessages,
-  markDmRead,
-  sendDm,
-  timeAgo,
-  type DmMessage,
-} from "@/lib/social";
-import { isSupabaseConfigured } from "@/lib/supabase";
+import { listDmMessages, markDmRead, sendDm, timeAgo, type DmMessage } from "@/lib/social";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/messages/$conversationId")({
   ssr: false,
@@ -45,7 +39,30 @@ function ConversationPage() {
 
   useEffect(() => {
     void load();
-  }, [load]);
+
+    // Supabase Realtime channel subscription for instant messages
+    const channel = isSupabaseConfigured
+      ? supabase
+          ?.channel(`conversation:${conversationId}`)
+          .on(
+            "postgres_changes",
+            {
+              event: "INSERT",
+              schema: "public",
+              table: "direct_messages",
+              filter: `conversation_id=eq.${conversationId}`,
+            },
+            () => {
+              void load();
+            },
+          )
+          .subscribe()
+      : null;
+
+    return () => {
+      if (channel) void supabase?.removeChannel(channel);
+    };
+  }, [conversationId, load]);
 
   async function onSend() {
     if (!body.trim()) return;

@@ -1,7 +1,4 @@
-import {
-  parsePhoneNumberFromString,
-  type CountryCode,
-} from "libphonenumber-js";
+import { parsePhoneNumberFromString, type CountryCode } from "libphonenumber-js";
 
 /** Normalize a national phone number to E.164 using the selected country. */
 export function toE164(raw: string, countryCode: string): string | null {

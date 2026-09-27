@@ -67,7 +67,7 @@ function WorldPage() {
   const selectedContinent =
     selected.kind === "continent"
       ? selected.id
-      : crumbs.find((c) => c.kind === "continent")?.id ?? null;
+      : (crumbs.find((c) => c.kind === "continent")?.id ?? null);
 
   const loadBase = useCallback(async () => {
     if (!isSupabaseConfigured) {
@@ -124,47 +124,50 @@ function WorldPage() {
     return () => clearTimeout(t);
   }, [query]);
 
-  const openNode = useCallback(async (kind: Exclude<GeoKind, "earth">, id: string, label: string) => {
-    setPanelLoading(true);
-    setError(null);
-    setQuery("");
-    setHits([]);
-    try {
-      const s = await fetchGeoStats(kind, id);
-      if (s.error) {
-        setError(s.error === "not_found" ? "Location not found." : s.error);
-        setStats(null);
-        return;
-      }
-      setStats(s);
-      setCrumbs((prev) => {
-        const earth = prev[0] ?? { kind: "earth" as const, id: "earth", label: "Earth" };
-        const next: Crumb[] = [earth];
-        if (kind === "continent") {
-          next.push({ kind, id, label });
-        } else if (kind === "country") {
-          const cc = (s.meta.continent_code as string) || undefined;
-          if (cc) next.push({ kind: "continent", id: cc, label: cc });
-          next.push({ kind, id, label });
-        } else {
-          // keep previous path up to parent level when drilling from children list
-          const withoutLeaf = prev.filter((c) => c.kind !== kind);
-          return [...withoutLeaf, { kind, id, label }];
+  const openNode = useCallback(
+    async (kind: Exclude<GeoKind, "earth">, id: string, label: string) => {
+      setPanelLoading(true);
+      setError(null);
+      setQuery("");
+      setHits([]);
+      try {
+        const s = await fetchGeoStats(kind, id);
+        if (s.error) {
+          setError(s.error === "not_found" ? "Location not found." : s.error);
+          setStats(null);
+          return;
         }
-        return next;
-      });
-      if (kind === "continent") {
-        const list = await fetchCountriesByContinent(id);
-        setCountries(list);
-      } else {
-        setCountries([]);
+        setStats(s);
+        setCrumbs((prev) => {
+          const earth = prev[0] ?? { kind: "earth" as const, id: "earth", label: "Earth" };
+          const next: Crumb[] = [earth];
+          if (kind === "continent") {
+            next.push({ kind, id, label });
+          } else if (kind === "country") {
+            const cc = (s.meta.continent_code as string) || undefined;
+            if (cc) next.push({ kind: "continent", id: cc, label: cc });
+            next.push({ kind, id, label });
+          } else {
+            // keep previous path up to parent level when drilling from children list
+            const withoutLeaf = prev.filter((c) => c.kind !== kind);
+            return [...withoutLeaf, { kind, id, label }];
+          }
+          return next;
+        });
+        if (kind === "continent") {
+          const list = await fetchCountriesByContinent(id);
+          setCountries(list);
+        } else {
+          setCountries([]);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Could not load location.");
+      } finally {
+        setPanelLoading(false);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not load location.");
-    } finally {
-      setPanelLoading(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   const goCrumb = useCallback(
     async (index: number) => {
@@ -223,9 +226,7 @@ function WorldPage() {
                 className="mt-2 w-full rounded-2xl bg-panel2 px-4 py-3 text-sm text-snow ring-1 ring-line outline-none placeholder:text-mist/60 focus:ring-2 focus:ring-neon"
                 autoComplete="off"
               />
-              {searching ? (
-                <p className="mt-2 text-[11px] text-mist">Searching…</p>
-              ) : null}
+              {searching ? <p className="mt-2 text-[11px] text-mist">Searching…</p> : null}
               {query.trim().length >= 2 && !searching && hits.length === 0 ? (
                 <p className="mt-2 text-[11px] text-mist">No results.</p>
               ) : null}
@@ -254,7 +255,10 @@ function WorldPage() {
             </div>
 
             {/* Breadcrumbs */}
-            <nav className="mt-4 flex flex-wrap items-center gap-1 text-xs" aria-label="Geography path">
+            <nav
+              className="mt-4 flex flex-wrap items-center gap-1 text-xs"
+              aria-label="Geography path"
+            >
               {crumbs.map((c, i) => (
                 <span key={`${c.kind}-${c.id}`} className="flex items-center gap-1">
                   {i > 0 ? <span className="text-mist">→</span> : null}
@@ -299,7 +303,11 @@ function WorldPage() {
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {(overview.continents ?? []).map((c) => (
-                    <button key={c.code} type="button" onClick={() => void openNode("continent", c.code, c.name)}>
+                    <button
+                      key={c.code}
+                      type="button"
+                      onClick={() => void openNode("continent", c.code, c.name)}
+                    >
                       <Chip active={false}>
                         {c.name}
                         {c.member_count != null ? ` · ${c.member_count}` : ""}
@@ -433,8 +441,8 @@ function WorldPage() {
             {selected.kind === "earth" && trending.length === 0 && !loading ? (
               <Panel className="mt-4">
                 <p className="text-sm text-mist">
-                  No trending locations yet. Trending needs at least 5 members in a country
-                  (privacy threshold).
+                  No trending locations yet. Trending needs at least 5 members in a country (privacy
+                  threshold).
                 </p>
               </Panel>
             ) : null}

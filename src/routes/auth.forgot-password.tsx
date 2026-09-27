@@ -13,7 +13,10 @@ export const Route = createFileRoute("/auth/forgot-password")({
   head: () => ({
     meta: [
       { title: "Reset your password — OTAKUVERSE" },
-      { name: "description", content: "Request a password reset link for your OTAKUVERSE account." },
+      {
+        name: "description",
+        content: "Request a password reset link for your OTAKUVERSE account.",
+      },
       { property: "og:title", content: "Reset your password — OTAKUVERSE" },
       { property: "og:description", content: "Request a password reset link." },
     ],

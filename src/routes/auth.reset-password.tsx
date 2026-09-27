@@ -55,7 +55,9 @@ function ResetPasswordPage() {
   return (
     <Screen eyebrow="NEW PASSWORD">
       <section className="mt-9">
-        <h1 className="font-display text-5xl font-bold leading-none text-balance">Set a new one.</h1>
+        <h1 className="font-display text-5xl font-bold leading-none text-balance">
+          Set a new one.
+        </h1>
       </section>
 
       <ConnectionGuard>

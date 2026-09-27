@@ -33,7 +33,8 @@ export function CountrySelect({ value, onChange, label = "Country", error }: Cou
         onClick={() => setOpen((o) => !o)}
         className={cn(
           "mt-2 flex w-full items-center gap-3 rounded-2xl bg-panel2 px-4 py-3 text-left ring-1 ring-line",
-          selected && "ring-2 ring-neon shadow-[0_0_20px_color-mix(in_oklab,var(--neon)_25%,transparent)]",
+          selected &&
+            "ring-2 ring-neon shadow-[0_0_20px_color-mix(in_oklab,var(--neon)_25%,transparent)]",
           error && "ring-ember/70",
         )}
       >
@@ -42,7 +43,9 @@ export function CountrySelect({ value, onChange, label = "Country", error }: Cou
           <span className="block font-display text-sm font-semibold text-snow">
             {selected?.name ?? "Select your country"}
           </span>
-          <span className="block text-xs text-mist">{selected?.dial ?? "Required before phone"}</span>
+          <span className="block text-xs text-mist">
+            {selected?.dial ?? "Required before phone"}
+          </span>
         </span>
         <span className="size-4 shrink-0 translate-y-0.5 rotate-45 rounded-full border-2 border-mist" />
       </button>

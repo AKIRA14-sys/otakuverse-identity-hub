@@ -304,10 +304,7 @@ function CommunityDetailPage() {
               </Panel>
             ) : null}
 
-            <Link
-              to="/communities"
-              className="mt-6 inline-block text-xs font-semibold text-neon"
-            >
+            <Link to="/communities" className="mt-6 inline-block text-xs font-semibold text-neon">
               ← All communities
             </Link>
           </>

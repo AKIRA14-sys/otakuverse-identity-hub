@@ -88,7 +88,10 @@ export async function fetchWorldOverview(): Promise<WorldOverview> {
   return data as WorldOverview;
 }
 
-export async function fetchGeoStats(kind: Exclude<GeoKind, "earth">, id: string): Promise<GeoStats> {
+export async function fetchGeoStats(
+  kind: Exclude<GeoKind, "earth">,
+  id: string,
+): Promise<GeoStats> {
   const { data, error } = await requireSupabase().rpc("get_geo_stats", {
     p_kind: kind,
     p_id: id,
