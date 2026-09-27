@@ -36,7 +36,9 @@ export function Screen({
   return (
     <div className="relative min-h-screen overflow-hidden bg-ink text-snow">
       <GlowBackdrop />
-      <div className={cn("relative mx-auto max-w-[26.25rem] px-5 pt-6", withNav ? "pb-28" : "pb-12")}>
+      <div
+        className={cn("relative mx-auto max-w-[26.25rem] px-5 pt-6", withNav ? "pb-28" : "pb-12")}
+      >
         <header className="flex items-center justify-between">
           <Link to="/">
             <Logo />
@@ -140,8 +142,7 @@ export function Spinner({ label }: { label?: string }) {
 }
 
 export function BottomNav() {
-  const item =
-    "flex flex-col items-center gap-1 rounded-2xl px-2.5 py-2 text-mist sm:px-3";
+  const item = "flex flex-col items-center gap-1 rounded-2xl px-2.5 py-2 text-mist sm:px-3";
   const active = "bg-neon/15 text-neon ring-1 ring-neon/40";
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10">
@@ -172,4 +173,3 @@ export function BottomNav() {
     </nav>
   );
 }
-

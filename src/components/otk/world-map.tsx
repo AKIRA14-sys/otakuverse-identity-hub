@@ -61,7 +61,9 @@ export function WorldMap({
                 rx={2.5}
                 className={cn(
                   "cursor-pointer transition-all",
-                  active ? "fill-neon/35 stroke-neon" : "fill-panel2 stroke-line hover:fill-neon/15",
+                  active
+                    ? "fill-neon/35 stroke-neon"
+                    : "fill-panel2 stroke-line hover:fill-neon/15",
                 )}
                 strokeWidth={0.6}
                 onClick={() => onSelectContinent(region.code)}

@@ -220,11 +220,7 @@ export async function listCommunityPosts(
   return (data as CommunityPost[]) ?? [];
 }
 
-export async function createCommunityPost(
-  communityId: string,
-  body: string,
-  linkUrl?: string,
-) {
+export async function createCommunityPost(communityId: string, body: string, linkUrl?: string) {
   const { data, error } = await requireSupabase().rpc("create_community_post", {
     p_community_id: communityId,
     p_body: body,

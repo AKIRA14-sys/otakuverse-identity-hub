@@ -191,7 +191,9 @@ function CommunitiesPage() {
                 <p className="font-display text-[11px] font-semibold tracking-[0.15em] text-mist">
                   NEAR YOUR PROFILE
                 </p>
-                <p className="text-[11px] text-mist">Based on your profile country/city — no GPS.</p>
+                <p className="text-[11px] text-mist">
+                  Based on your profile country/city — no GPS.
+                </p>
                 {nearby.map((c) => (
                   <CommunityCard key={c.id} c={c} />
                 ))}

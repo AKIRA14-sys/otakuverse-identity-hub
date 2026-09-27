@@ -20,9 +20,7 @@ function NotFoundComponent() {
       <div className="max-w-md text-center">
         <h1 className="font-display text-7xl font-bold text-snow">404</h1>
         <h2 className="mt-4 font-display text-xl font-semibold text-snow">Page not found</h2>
-        <p className="mt-2 text-sm text-mist">
-          This corner of the Otakuverse doesn't exist yet.
-        </p>
+        <p className="mt-2 text-sm text-mist">This corner of the Otakuverse doesn't exist yet.</p>
         <div className="mt-6">
           <Link
             to="/"

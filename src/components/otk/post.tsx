@@ -126,9 +126,7 @@ export function PostCard({
       <p className="mt-3 whitespace-pre-wrap text-pretty text-sm text-snow">{post.body}</p>
 
       {media.length > 0 ? (
-        <div
-          className={`mt-3 grid gap-2 ${media.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
-        >
+        <div className={`mt-3 grid gap-2 ${media.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
           {media.map((url) => (
             <img
               key={url}
@@ -177,11 +175,7 @@ export function PostCard({
           <ul className="space-y-3">
             {topLevel.map((c) => (
               <li key={c.id}>
-                <CommentRow
-                  comment={c}
-                  canInteract={canInteract}
-                  onReply={() => setReplyTo(c)}
-                />
+                <CommentRow comment={c} canInteract={canInteract} onReply={() => setReplyTo(c)} />
                 {repliesOf(c.id).length > 0 ? (
                   <ul className="mt-2 space-y-2 border-l border-line pl-3">
                     {repliesOf(c.id).map((r) => (

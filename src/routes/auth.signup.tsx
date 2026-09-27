@@ -56,7 +56,11 @@ function SignupPage() {
   const dial = countryCode ? COUNTRY_BY_CODE[countryCode]?.dial : undefined;
 
   const usernameNormalized = useMemo(
-    () => username.trim().toLowerCase().replace(/[^a-z0-9_]/g, ""),
+    () =>
+      username
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, ""),
     [username],
   );
 
@@ -161,9 +165,7 @@ function SignupPage() {
           <br />
           identity.
         </h1>
-        <p className="mt-4 text-sm text-mist">
-          One permanent ID. Your character starts here.
-        </p>
+        <p className="mt-4 text-sm text-mist">One permanent ID. Your character starts here.</p>
       </section>
 
       <div className="mt-6">
@@ -257,7 +259,8 @@ function SignupPage() {
                   onChange={(e) => setDateOfBirth(e.target.value)}
                 />
                 <p className="mt-1 text-[11px] text-mist">
-                  Exact date stays private. Age is derived when needed. Minimum age: {MIN_SIGNUP_AGE}.
+                  Exact date stays private. Age is derived when needed. Minimum age:{" "}
+                  {MIN_SIGNUP_AGE}.
                 </p>
                 <SelectField
                   label="Gender"

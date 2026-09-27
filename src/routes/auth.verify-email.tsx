@@ -13,9 +13,15 @@ export const Route = createFileRoute("/auth/verify-email")({
   head: () => ({
     meta: [
       { title: "Verify your email — OTAKUVERSE" },
-      { name: "description", content: "Confirm your email address to activate your OTAKUVERSE account." },
+      {
+        name: "description",
+        content: "Confirm your email address to activate your OTAKUVERSE account.",
+      },
       { property: "og:title", content: "Verify your email — OTAKUVERSE" },
-      { property: "og:description", content: "Confirm your email address to activate your account." },
+      {
+        property: "og:description",
+        content: "Confirm your email address to activate your account.",
+      },
     ],
   }),
   component: VerifyEmailPage,
@@ -49,8 +55,8 @@ function VerifyEmailPage() {
           inbox.
         </h1>
         <p className="mt-4 text-sm text-mist">
-          We sent a confirmation link{email ? ` to ${email}` : ""}. Your account activates the moment
-          you open it.
+          We sent a confirmation link{email ? ` to ${email}` : ""}. Your account activates the
+          moment you open it.
         </p>
       </section>
 

@@ -38,16 +38,16 @@ supabase db push
 
 ## 4. What the migration creates
 
-| Object | Purpose |
-| --- | --- |
-| `continents`, `countries`, `states_provinces`, `cities`, `local_areas` | Geography |
-| `profiles` | 1:1 with `auth.users.id` |
-| Trigger `on_auth_user_created` | Creates profile from signup metadata |
-| `is_username_available(candidate)` | RPC |
-| `get_my_profile()` | RPC — own full profile |
-| `public_profiles` | View — no email, phone, or exact DOB |
-| RLS + column grants | Owner-only private fields; public read via view |
-| `guard_profile_update` | Blocks client edits to XP, level, admin flags, etc. |
+| Object                                                                 | Purpose                                             |
+| ---------------------------------------------------------------------- | --------------------------------------------------- |
+| `continents`, `countries`, `states_provinces`, `cities`, `local_areas` | Geography                                           |
+| `profiles`                                                             | 1:1 with `auth.users.id`                            |
+| Trigger `on_auth_user_created`                                         | Creates profile from signup metadata                |
+| `is_username_available(candidate)`                                     | RPC                                                 |
+| `get_my_profile()`                                                     | RPC — own full profile                              |
+| `public_profiles`                                                      | View — no email, phone, or exact DOB                |
+| RLS + column grants                                                    | Owner-only private fields; public read via view     |
+| `guard_profile_update`                                                 | Blocks client edits to XP, level, admin flags, etc. |
 
 ## 5. Security notes
 

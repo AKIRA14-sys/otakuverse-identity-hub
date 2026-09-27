@@ -40,9 +40,7 @@ function ClanDetailPage() {
           <div className="mt-8">
             <h1 className="font-display text-3xl font-bold">{clan.name}</h1>
             <p className="mt-2 text-sm text-mist">{formatMembers(clan.member_count)} members</p>
-            {clan.description ? (
-              <p className="mt-4 text-sm text-mist">{clan.description}</p>
-            ) : null}
+            {clan.description ? <p className="mt-4 text-sm text-mist">{clan.description}</p> : null}
           </div>
         ) : null}
         <Link to="/clans" className="mt-6 inline-block text-xs font-semibold text-neon">

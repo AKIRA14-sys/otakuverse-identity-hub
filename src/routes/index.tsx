@@ -67,16 +67,25 @@ function Landing() {
 
         <div className="mt-6 grid grid-cols-2 gap-3">
           {user && !loading ? (
-            <Link to="/profile" className={otkButtonVariants({ variant: "neon", size: "lg" }) + " col-span-2"}>
+            <Link
+              to="/profile"
+              className={otkButtonVariants({ variant: "neon", size: "lg" }) + " col-span-2"}
+            >
               Go to your profile
             </Link>
           ) : (
             <>
-              <Link to="/auth/signup" className={otkButtonVariants({ variant: "neon", size: "lg" })}>
+              <Link
+                to="/auth/signup"
+                className={otkButtonVariants({ variant: "neon", size: "lg" })}
+              >
                 <span className="size-4 shrink-0 rounded-full border-2 border-ink/40" />
                 Create profile
               </Link>
-              <Link to="/auth/login" className={otkButtonVariants({ variant: "panel", size: "lg" })}>
+              <Link
+                to="/auth/login"
+                className={otkButtonVariants({ variant: "panel", size: "lg" })}
+              >
                 Sign in
               </Link>
             </>

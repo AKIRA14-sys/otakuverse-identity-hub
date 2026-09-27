@@ -50,7 +50,9 @@ function SocietiesPage() {
         <div className="mt-4 space-y-2">
           {!loading && items.length === 0 ? (
             <Panel>
-              <p className="text-sm text-mist">No societies yet. They can be created after SQL is applied.</p>
+              <p className="text-sm text-mist">
+                No societies yet. They can be created after SQL is applied.
+              </p>
             </Panel>
           ) : (
             items.map((s) => (

@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { listConversations, timeAgo, type ConversationRow } from "@/lib/social";
 import { isSupabaseConfigured } from "@/lib/supabase";
 
-export const Route = createFileRoute("/messages")({
+export const Route = createFileRoute("/message")({
   ssr: false,
   head: () => ({ meta: [{ title: "Messages — OTAKUVERSE" }] }),
   component: MessagesPage,
@@ -81,9 +81,7 @@ function MessagesPage() {
                   {r.other_display_name || r.other_username}
                   {r.unread ? <span className="ml-2 text-[10px] text-neon">●</span> : null}
                 </p>
-                <span className="text-[11px] text-mist">
-                  {r.last_at ? timeAgo(r.last_at) : ""}
-                </span>
+                <span className="text-[11px] text-mist">{r.last_at ? timeAgo(r.last_at) : ""}</span>
               </div>
               <p className="mt-1 truncate text-xs text-mist">{r.last_body ?? "—"}</p>
             </Link>

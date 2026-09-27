@@ -171,9 +171,7 @@ function PublicProfilePage() {
                 <p className="font-display text-[11px] font-semibold tracking-[0.15em] text-mist">
                   FAVORITE CHARACTERS
                 </p>
-                <p className="mt-1 text-sm text-snow">
-                  {profile.favorite_characters.join(" · ")}
-                </p>
+                <p className="mt-1 text-sm text-snow">{profile.favorite_characters.join(" · ")}</p>
               </div>
             ) : null}
           </div>
